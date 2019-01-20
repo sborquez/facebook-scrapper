@@ -22,7 +22,7 @@ import sys
 import argparse
 
 DEBUG = True
-SCROLL_PAUSE_TIME = 3
+SCROLL_PAUSE_TIME = 2
 
 # Parse args
 ap = argparse.ArgumentParser()
@@ -31,7 +31,7 @@ ap.add_argument("-j", "--json", required=False, help="Path to database file", de
 args = vars(ap.parse_args())
 
 webdriver_path = args["driver"]
-schedule_db_path = args["json"]
+db_path = args["json"]
 
 def is_logged(driver):
     try:
@@ -63,7 +63,7 @@ def logout():
 
 #%%
 def get_users_db():
-    db = TinyDB(schedule_db_path)
+    db = TinyDB(db_path)
     users_db = db.table("users")
     return users_db            
 
@@ -82,7 +82,7 @@ def get_users_from_ul(ul_element, group, users_db, print_=False):
                 link = user_a.get_attribute("href").split("?")[0]
                 user_id = link.split("/")[-1]
 
-            if len(users_db.search(Query().user_id == user_id)) == 0:
+            if DEBUG or len(users_db.search(Query().user_id == user_id)) == 0:
                 users_db.insert({"user":user_id, "name": name, "link": link, "groups":[group]})
                 added += 1
                 if print_:
@@ -120,8 +120,8 @@ loggin(driver)
 
 
 # Select source group 
-group="FEUTFSM"
-#group=input("group link: https://www.facebook.com/groups/")
+# group="FEUTFSM"
+group=input("group link: https://www.facebook.com/groups/")
 #users.update(set("group",[group])) # agrega el grupo a los usuario ya existentes en la base de datos
 driver.get("https://www.facebook.com/groups/"+group+"/members/")
 
