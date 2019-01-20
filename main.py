@@ -70,6 +70,7 @@ def get_users_db():
 def get_users_from_ul(ul_element, group, users_db, print_=False):
     users = ul_element.find_elements_by_tag_name("div")
     added = 0
+    errors = 0
     for user_div in users:
         try:
             user_a = user_div.find_element_by_xpath("./div/div[2]/div/div[2]/div[1]/a")
@@ -88,10 +89,11 @@ def get_users_from_ul(ul_element, group, users_db, print_=False):
                     print("[",str(added),"] Added:", user_id)
         
         except Exception as e:
+            errors += 1
             with open("error.log", "a") as log:
                 log.write("Error adding {user_id}\{e}\n".format(user_id=user_id, e=e))
 
-    return added
+    return added, errors
 #%%
 #def main():
 if not path.exists(webdriver_path):
@@ -131,20 +133,23 @@ members_div = driver.find_element_by_id("groupsMemberSection_recently_joined")
 members_list = members_div.find_element_by_class_name("fbProfileBrowserList")
 
 # Prepare progress bar
+total_errors = 0
 total_added = len(users_db)
 pbar = tqdm(total=members_count, initial=total_added)
 
 # scroll down to member list
 members_list.location_once_scrolled_into_view
 first_ul = members_list.find_element_by_tag_name("ul")
-total_added += get_users_from_ul(first_ul, group, users_db)
-
+add, err = get_users_from_ul(first_ul, group, users_db)
+total_added += add
+total_errors += err
 # expanded lists added
 lists = 0
 
 # Infinite scrolling
 # Get scroll height
 last_height = driver.execute_script("return document.body.scrollHeight")
+#viewed_expanded_list
 while True:
     # Scroll down to bottom
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -163,10 +168,12 @@ while True:
     lists += len(expanded_lists)
     for expanded_list in expanded_lists:
         ul = expanded_list.find_element_by_tag_name("ul")
-        total_added += get_users_from_ul(ul, group, users_db)
-        pbar.update(total_added)
+        add, err = get_users_from_ul(ul, group, users_db)
+        total_added += add
+        total_errors += err
+        pbar.update(add)
 
-    
+print(total_errors)
 
 #driver.close()
     
