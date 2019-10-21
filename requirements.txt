@@ -2,5 +2,5 @@ certifi==2018.11.29
 selenium==3.141.0
 tinydb==3.12.2
 tqdm==4.29.1
-urllib3==1.24.1
+urllib3==1.24.2
 wincertstore==0.2
