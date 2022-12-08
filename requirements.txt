@@ -1,4 +1,4 @@
-certifi==2018.11.29
+certifi==2022.12.7
 selenium==3.141.0
 tinydb==3.12.2
 tqdm==4.29.1
